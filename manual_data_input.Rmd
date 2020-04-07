@@ -1,0 +1,254 @@
+---
+title: "manual_data_input"
+author: "David McCoy"
+date: "4/6/2020"
+output: html_document
+---
+
+
+```{r}
+library(dplyr)
+library(ggplot2)
+library(tidyr)
+library(readxl)
+```
+
+# Manual Input of Data for Visualization
+
+The goal of this tutorial is to provide you with the skills to use any data from any source for an R visualization. Oftentimes, the amount of data (the size of the spreadsheet or matrix) is not very large. In this case it is often faster or easier to just type in the data manually, create an object or data frame, and use that just like the other data frames fromour homework assignments. This is quite easy! I'll show you in a few steps.
+
+1. Find your data.
+2. Consider the structure you will need.
+3. Create a data frame.
+4. Use that data frame in ggplot2 the same way we did in the homeworks and bootcamps.
+
+### Finished examples
+
+Before that, let's think about #2 on the list above and get some rules. When you are creating a data frame object, you have to keep in mind that your columns must have the same length, and the order must correspond perfectly. This is because the columns of a data frame (or even a spreadsheet) are really just vertical lists of values ordered in a way that the rows correspond to the same observation. First let's consider a really simple example, start to finish.
+
+```{r}
+# Create two lists. Length MUST be the same and values must correspond.
+days_in_quarantine <- c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14)
+productivity_score <- c(60, 55, 50, 40, 30, 25, 24, 25, 24, 27, 31, 33, 35, 37)
+# Use the two lists to create a data frame object.
+quaratine_productivity <- data.frame(days_in_quarantine, productivity_score)
+```
+
+Click on the new object "quarantine_productivity" to see what it looks like. Now let's use it in ggplot2.
+
+```{r}
+# Here is a really simple plot
+ggplot(quaratine_productivity , aes(x = days_in_quarantine, y = productivity_score)) +
+  geom_line()
+
+# Here is a simple plot with nice labels - Exactly like example 5 on HW2
+ggplot(quaratine_productivity, aes(x=days_in_quarantine, y=productivity_score)) + 
+  geom_line() + 
+  labs(title="Quarantine 2020: My Productivity", 
+       subtitle="Watch as I lose most of my capacities, then gain a little back", 
+       caption="Source: I just made up this data", 
+       y="Productivity Score",
+       x = "Number of Days in Quarantine")
+```
+
+
+Here is a more complicated example of manual input of data that I created for a book chapter this year. I wanted to show the percentage of representatives that are female for four types of political offices for five electoral periods. So I need the precentage value for each of five years for each of four offices. You can think of my observations as "office-years". So I create a row that has a percentage for each year inside of five types of offices. The order is very important! This data came from a Brazilian government site, and it wasn't worth my time to clean and import the data as a file, so I just typed all of this out.   
+
+Run the code chunk below. There should be a new data frame object in the "Environment" area in the top-right panel that is called "Brazilian_fem_reps" plus three lists of values called "office" and "percent_female" and "year".  
+
+
+```{r}
+# First I create three lists that are EXACTLY 20 items long with the exact order of my observations.
+
+# "year" is a list of years
+year <- c(2002, 2006, 2010, 2014, 2018, 
+          2002, 2006, 2010, 2014, 2018, 
+          2002, 2006, 2010, 2014, 2018, 
+          2002, 2006, 2010, 2014, 2018)
+percent_female <- c(7.4, 11.1, 7.4, 3.7, 3.7,
+                    14.8, 14.8, 14.8, 18.5, 12.9,
+                    8.6, 8.8, 8.8, 9.9, 15,
+                    12.6, 11.6, 12.9, 11.4, 15.3)
+office <- c("Governors", "Governors", "Governors", "Governors","Governors", 
+            "Senators","Senators","Senators","Senators","Senators",
+            "Federal Deputy","Federal Deputy","Federal Deputy","Federal Deputy","Federal Deputy", 
+            "State Deputy","State Deputy","State Deputy","State Deputy","State Deputy")
+
+Brazilian_fem_reps <- data.frame(office, year, percent_female)
+```
+
+Click on the object "Brazilian_fem_rep" to see what it contains. It is a data frame that contains the three columns of data. The order of this data was determined by my needs. I have five years of observations (2002, 2006, 2010, 2014, 2018). Each of those five-year series belongs to a type of office. So I have a value (percent_female) for each office-year observation.  
+
+Now let's use this new data frame to make a plot in ggplot2.
+
+```{r}
+ggplot(Brazilian_fem_reps, aes(x=year, y=percent_female, color=office)) + 
+  geom_line() + 
+  labs(title="Percent of Seats Held by Female Representatives by Office", 
+       subtitle="2002 - 2018", 
+       caption="Source: Brazilian Supreme Electoral Tribunal", 
+       y="% Held by Females",
+       x ="Year",
+       color="Type of Office")
+```
+
+
+### Using data from a website
+
+You can use any data from any source for this exercise. It doesn't even have to be in spreadsheet form! We are going to do this with some data from the World Values Survey. Their data is amazing, but they do not offer country-year data in a way that allows for easy use in statistical software. Why is this? I have no idea. I find it very frustrating, personally!! If you are using just a few indicators, it is faster to just find it and enter it yourself!
+
+This is the website: http://www.worldvaluessurvey.org/WVSOnline.jsp  
+
+[Here is a link if you are viewing in html](http://www.worldvaluessurvey.org/WVSOnline.jsp)   
+
+Let's do an example where we want one indicator over four "waves" or time periods of the survey for a single country. This means that we need a column of values and a column of years or waves. We don't need a country column, because there is only one. I'll show you the best way (not at all intuitive) to find the time-series data on the site.
+
+We will go and look at a question related to gender equality in Brazil. The question is:  
+"Men should have more right to a job than women" and the respondend agrees or not.
+
+You can see that the plot automatically fills in the line, even though there is a gap in the waves. That's nice!! Of course, that means we are assuming the missing year is an average of the surrounding years (interpolation).
+
+
+```{r}
+# One country, one indicator
+
+
+
+# Should look like this
+value <- c(38, 35, 22, 17)
+wave <- c(1993, 1998, 2009, 2014)
+data1 <- data.frame(value, wave)
+```
+
+
+```{r}
+ggplot(data1, aes(x=wave, y=value)) + 
+  geom_line() + 
+  labs(title="Gender Equality in Brazil: 1993 - 2014", 
+       subtitle="Men should have more right to a job than women: Percent of Public Agreeing", 
+       caption="Source: World Values Survey", 
+       y="% Agree",
+       x = "Survey Wave")
+```
+
+Now let's do an example with a single indicator and two countries. Hopefully, you can see how you would easily expand this to be as many countries as you want. You could also use this same logic to do multiple indicators in a single country by switching a country category for an indicator category. We are going to add on to our current data, since we know that one has pretty good coverage. Not all indicators exist for all years, so you might need to shop around. We now need a new column for the country, so we can have country-year observations.
+
+Note: Brazil is missing a wave, but the US is not!! Like almost always, available data is not ideal. We are going to drop the extra year for the US. You could also keep the extra year for the US and add an average of surrounding years (interpolated value) or insert an "NA" value for the missing Brazilian year.
+
+```{r}
+# Two countries, one indicator
+
+
+
+# Should look like this
+value <- c(38, 35, 22, 17,
+           24, 19, 7, 6)
+wave <- c(1993, 1998, 2009, 2014,
+          1993, 1998, 2009, 2014)
+Country <- c("Brazil", "Brazil", "Brazil", "Brazil",
+              "U.S.", "U.S.", "U.S.", "U.S.")
+data <- data.frame(value, wave, Country)
+
+```
+
+```{r}
+ggplot(data, aes(x=wave, y=value, color=Country)) + 
+  geom_line() + 
+  labs(title="Gender Equality in Brazil: 1993 - 2014", 
+       subtitle="Men should have more right to a job than women: Percent of Public Agreeing", 
+       caption="Source: World Values Survey", 
+       y="% Agree",
+       x = "Survey Wave")
+
+```
+
+Finally, here's an unnecessary example with two countries and two years. I pasted what I had for Brazil and added in the US. This means our observations are values that are country-year-indicator observations.  
+
+```{r}
+# Should look like this
+value <- c(38, 35, 22, 17,6, 3, 3, 3,
+           24, 19, 7, 6, 5, 5, 9, 13)
+wave <- c(1993, 1998, 2009, 2014, 1993, 1998, 2009, 2014,
+          1993, 1998, 2009, 2014, 1993, 1998, 2009, 2014)
+Country <- c("Brazil", "Brazil", "Brazil", "Brazil","Brazil", "Brazil", "Brazil", "Brazil",
+              "U.S.", "U.S.", "U.S.", "U.S.", "U.S.", "U.S.", "U.S.", "U.S.")
+Indicator <- c("gen", "gen", "gen", "gen", "rel", "rel", "rel", "rel",
+               "gen", "gen", "gen", "gen", "rel", "rel", "rel", "rel")
+data <- data.frame(value, wave, Country, Indicator)
+
+reshaped_data <- pivot_wider(data,  values_from = value, names_from = Indicator)
+    
+
+```
+
+
+```{r}
+ggplot(data %>% filter(Country=="U.S."), aes(x=wave, y=value, color=Indicator)) + 
+  geom_line() + 
+  ylim(0, 40) +
+  labs(title="Gender Equality in Work and Lack of Religion in the US: 1993 - 2014", 
+       caption="Source: World Values Survey", 
+       y="% Agree",
+       x = "Survey Wave")
+
+ggplot(data %>% filter(Country=="Brazil"), aes(x=wave, y=value, color=Indicator)) + 
+  geom_line() + 
+  ylim(0, 40) +
+  labs(title="Gender Equality in Work and Lack of Religion in  Brazil: 1993 - 2014", 
+       caption="Source: World Values Survey", 
+       y="% Agree",
+       x = "Survey Wave")
+
+```
+
+
+### Example: Loading in messy data
+```{r}
+homosexuality_ok <- read_excel("data/Justifiable_Homosexuality.xls", sheet = 2)
+women_jobs <- read_excel("data/Jobs_scarce_Men_should_have_more_right_to_a_job_than_women.xls", sheet=2)
+```
+
+```{r}
+h <- homosexuality_ok %>% pivot_longer(cols=1:58, names_to = "Country", values_to = "pcth")
+w <- women_jobs %>% pivot_longer(cols=2:61, names_to = "Country", values_to = "pctw") %>%
+  filter(response == "Agree") %>%
+  select(-response)
+
+data.hw <- full_join(h, w, by="Country")
+```
+
+```{r}
+ggplot(data = data.hw, aes(x=pcth, y=pctw, label=Country)) +
+  geom_point() + 
+  geom_smooth(method="lm", se=FALSE) + 
+  theme_classic() +
+  labs(subtitle="58 Countries", 
+       y="% Men Deserve Jobs over Women", 
+       x="% Homosexuality Never OK", 
+       title="Discrimination Against Women and Homosexuality", 
+       caption = "Source: World Values Survey") +
+  geom_label()
+```
+
+
+
+
+For the data citation, you can use this:
+
+Inglehart, R., C. Haerpfer, A. Moreno, C. Welzel, K. Kizilova, J. Diez-Medrano, M. Lagos, P. Norris, E. Ponarin & B. Puranen et al. (eds.). 2014. World Values Survey: All Rounds - Country-Pooled Datafile Version: http://www.worldvaluessurvey.org/WVSDocumentationWVL.jsp. Madrid: JD Systems Institute.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
